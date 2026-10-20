@@ -1,128 +1,137 @@
-# 🚀 AI Startup Validator
+# AI Startup Validator
 
-An AI-powered web app that analyzes and validates your startup ideas. Get instant feedback on market potential, competitors, tech stack recommendations, risk level, and profitability score — all powered by Groq AI.
+An AI-powered full-stack web application that helps entrepreneurs
+evaluate startup ideas through structured analysis of the problem,
+target customers, market opportunities, competitors, recommended
+technology stack, risk level, and profitability score.
 
----
+**Live Demo:** https://startup-validator-eight.vercel.app/
 
-## ✨ Features
+**Repository:** https://github.com/chatur446/startup-validator
 
-- **AI Analysis** — Submit a startup idea and get a detailed breakdown powered by Groq (Llama 3.3 70B)
-- **Competitor Insights** — See 3 real competitors and how to differentiate from them
-- **Tech Stack Suggestions** — Get practical MVP technology recommendations
-- **Risk & Profitability Score** — Instant risk level (Low / Medium / High) and a profitability score out of 100
-- **Dashboard** — View and manage all your previously submitted ideas
-- **Persistent Storage** — All ideas saved to Supabase database
-- **PDF Export** — Download a clean, formatted PDF report of any startup idea
+## Features
 
----
+-   AI-powered startup idea analysis using Groq.
+-   Structured reports covering the problem, target customers, market
+    overview, competitors, and suggested MVP technology stack.
+-   Risk assessment and profitability scoring.
+-   User authentication and a personalized dashboard.
+-   Persistent storage of startup ideas using Supabase PostgreSQL.
+-   Individual report pages and PDF export.
+-   User-scoped data access enforced through authenticated API requests
+    and Supabase Row Level Security.
+-   Input validation and error handling for API requests.
+-   Automated API security regression tests.
+-   GitHub Actions CI workflow for running tests and building the
+    production application.
 
-## 🛠 Tech Stack
+## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| AI Model | Groq — Llama 3.3 70B Versatile |
-| Database | Supabase (PostgreSQL) |
-| Fonts | Inter (Google Fonts) |
-| PDF Generation | jsPDF |
+  Category         Technologies
+  ---------------- ---------------------------------------
+  Frontend         Next.js App Router, React, TypeScript
+  Styling          Tailwind CSS
+  Backend          Next.js API routes
+  AI               Groq API, `openai/gpt-oss-120b`
+  Database         Supabase PostgreSQL
+  Authentication   Supabase Auth
+  PDF Generation   jsPDF
+  Testing          Vitest
+  CI/CD            GitHub Actions
+  Deployment       Vercel
 
----
+## Getting Started
 
-## 📁 Project Structure
+### Prerequisites
 
-```
-├── app/
-│   ├── api/
-│   │   └── ideas/
-│   │       ├── route.ts          # GET all ideas, POST new idea (calls Groq AI)
-│   │       └── [id]/
-│   │           └── route.ts      # GET single idea, DELETE idea
-│   ├── ideas/
-│   │   ├── page.tsx              # Dashboard — list all ideas
-│   │   └── [id]/
-│   │       └── page.tsx          # Detail page for a single idea
-│   ├── layout.tsx                # Root layout with navbar
-│   ├── page.tsx                  # Home page — submit new idea
-│   └── globals.css               # Global styles
-├── lib/
-│   └── supabase.ts               # Supabase client setup
-├── .env.local                    # Environment variables (not committed)
-└── package.json
-```
-
----
-
-## 🚀 Getting Started
+-   Node.js and npm
+-   A Supabase project
+-   A Groq API key
 
 ### 1. Clone the repository
 
-```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
+``` bash
+git clone https://github.com/chatur446/startup-validator.git
+cd startup-validator
 ```
 
 ### 2. Install dependencies
 
-```bash
-npm install
+``` bash
+npm ci
 ```
 
-### 3. Set up environment variables
+### 3. Configure environment variables
 
-Create a `.env.local` file in the root of the project:
+Create a `.env.local` file in the project root:
 
-```env
-GROQ_API_KEY=your_groq_api_key
+``` env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_publishable_or_anon_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
-- Get your Groq API key from [console.groq.com](https://console.groq.com)
-- Get your Supabase credentials from [supabase.com](https://supabase.com)
+Replace the placeholders with your own credentials. Never commit
+`.env.local` or expose your Groq API key in client-side code.
 
-### 4. Set up Supabase table
+### 4. Configure Supabase
 
-Run this SQL in your Supabase SQL editor:
+Configure the database schema required by the application, enable Row
+Level Security on the ideas table, and apply policies that restrict
+users to their own records.
 
-```sql
-create table ideas (
-  id uuid default gen_random_uuid() primary key,
-  title text not null,
-  description text not null,
-  problem text,
-  customer text,
-  market text,
-  competitor jsonb,
-  tech_stack jsonb,
-  risk_level text,
-  profitability_score integer,
-  justification text,
-  created_at timestamp with time zone default now()
-);
-```
+Configure Supabase Authentication and its permitted redirect URLs for
+local development and your deployed application.
 
-### 5. Run the development server
+Use the schema and policies from your existing project rather than
+creating a duplicate table if the database is already configured.
 
-```bash
+### 5. Run the application
+
+``` bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open http://localhost:3000 in your browser.
 
----
+## Testing
 
-## 🔑 Environment Variables
+Run the automated tests:
 
-| Variable | Description |
-|---|---|
-| `GROQ_API_KEY` | Your Groq API key |
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key |
+``` bash
+npm run test
+```
 
----
+Build the production application:
 
-## 📄 License
+``` bash
+npm run build
+```
 
-TThis project is licensed under the [MIT License](LICENSE).
+The GitHub Actions workflow runs the test suite and production build on
+pushes and pull requests targeting `main`.
+
+## Deployment
+
+The application is deployed on Vercel and connected to the GitHub
+repository.
+
+Configure the required environment variables in the Vercel project
+settings before deploying. Pushes to the configured production branch
+trigger deployments.
+
+**Live application:** https://startup-validator-eight.vercel.app/
+
+## Security
+
+-   Authenticate requests before accessing user data.
+-   Apply user ownership filters to database queries.
+-   Enforce database-level access policies through Supabase Row Level
+    Security.
+-   Validate incoming API data and handle malformed requests.
+-   Keep private API credentials in server-side environment variables.
+-   Run automated regression tests and a production build in CI.
+
+## License
+
+This project is licensed under the MIT License.

@@ -8,26 +8,31 @@ const client = new Groq({
 })
 
 // Helper to create a server-side Supabase client
-function createClient() {
-  const cookieStore = cookies()
+
+async function createClient() {
+  const cookieStore = await cookies()
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll() },
+        getAll() {
+          return cookieStore.getAll()
+        },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options)
-          )
+          })
         },
       },
     }
   )
 }
 
+
 export async function GET() {
-  const supabase = createClient()
+  const supabase =  await createClient()
 
   // Get logged in user
   const { data: { user } } = await supabase.auth.getUser()
@@ -43,7 +48,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase =  await createClient()
 
   // Get logged in user
   const { data: { user } } = await supabase.auth.getUser()
@@ -67,7 +72,7 @@ Return ONLY JSON, no markdown, no backticks.
 Input: ${JSON.stringify({ title, description })}`
 
   const message = await client.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     max_tokens: 1024,
     messages: [{ role: 'user', content: prompt }]
   })

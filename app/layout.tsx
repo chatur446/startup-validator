@@ -1,4 +1,6 @@
+
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Inter } from 'next/font/google'
 import { Rocket, LayoutDashboard } from 'lucide-react'
 import './globals.css'
@@ -21,19 +23,28 @@ export default function RootLayout({
       <body className={`${inter.className} bg-gray-950 text-white min-h-screen`}>
         <nav className="border-b border-gray-800 px-6 py-4">
           <div className="max-w-5xl mx-auto flex items-center justify-between">
-            <a href="/" className="text-xl font-bold text-blue-400 flex items-center gap-2">
+            <Link
+              href="/"
+              className="text-xl font-bold text-blue-400 flex items-center gap-2"
+            >
               <Rocket className="w-5 h-5" />
               StartupValidator
-            </a>
+            </Link>
+
             <div className="flex items-center gap-4">
-              <a href="/ideas" className="text-sm text-gray-400 hover:text-white transition flex items-center gap-1">
+              <Link
+                href="/ideas"
+                className="text-sm text-gray-400 hover:text-white transition flex items-center gap-1"
+              >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
-              </a>
-              <NavbarAuth />  {/* 👈 login/logout button */}
+              </Link>
+
+              <NavbarAuth />
             </div>
           </div>
         </nav>
+
         <main className="max-w-5xl mx-auto px-6 py-10">
           {children}
         </main>

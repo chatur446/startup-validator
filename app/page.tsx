@@ -1,4 +1,6 @@
+
 'use client'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Sparkles } from 'lucide-react'
@@ -11,31 +13,75 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // 👇 Redirect to login if not logged in
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push('/auth')
-    })
-  }, [])
+    let active = true
+
+    const checkUser = async () => {
+      const { data, error } = await supabase.auth.getUser()
+
+      if (!active) return
+
+      if (error || !data.user) {
+        router.push('/auth')
+      }
+    }
+
+    void checkUser()
+
+    return () => {
+      active = false
+    }
+  }, [router])
 
   const handleSubmit = async () => {
-    if (!title || !description) {
+    if (!title.trim() || !description.trim()) {
       setError('Please fill in both fields')
       return
     }
+
     setLoading(true)
     setError('')
+
     try {
       const res = await fetch('/api/ideas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description })
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim(),
+        }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+
+      const data: unknown = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        const message =
+          typeof data === 'object' &&
+          data !== null &&
+          'error' in data &&
+          typeof data.error === 'string'
+            ? data.error
+            : 'Unable to validate your startup idea'
+
+        throw new Error(message)
+      }
+
+      if (
+        typeof data !== 'object' ||
+        data === null ||
+        !('id' in data) ||
+        typeof data.id !== 'string'
+      ) {
+        throw new Error('The server returned an invalid response')
+      }
+
       router.push(`/ideas/${data.id}`)
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong')
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Something went wrong. Please try again.'
+      )
       setLoading(false)
     }
   }
@@ -59,7 +105,7 @@ export default function Home() {
           <input
             type="text"
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. AI-powered fitness coach"
             className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
           />
@@ -71,7 +117,7 @@ export default function Home() {
           </label>
           <textarea
             value={description}
-            onChange={e => setDescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe your startup idea in detail — what problem it solves, who it's for, how it works..."
             rows={5}
             className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition resize-none"
@@ -79,7 +125,9 @@ export default function Home() {
         </div>
 
         {error && (
-          <p className="text-red-400 text-sm">{error}</p>
+          <p role="alert" className="text-red-400 text-sm">
+            {error}
+          </p>
         )}
 
         <button
